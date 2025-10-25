@@ -29,7 +29,9 @@ export default function App() {
 
   return (
     <div className="kanban-page">
-      <h1>Tablero Kanban</h1>
+      <div className="kanban-page__header">
+        <h1>Tablero Kanban</h1>
+      </div>
       {status === 'loading' && <div>Cargando...</div>}
       <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} />
     </div>

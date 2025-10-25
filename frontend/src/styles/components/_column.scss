@@ -22,6 +22,18 @@
     flex-direction: column;
     gap: $space-3;
     min-height: 40px;
+    position: relative;
+    transition: background-color .15s ease, box-shadow .15s ease;
+
+    &::after {
+      content: 'Arrastra una tarjeta aquí';
+      display: block;
+      color: $muted;
+      font-size: $fs-12;
+      text-align: center;
+      padding: $space-2;
+      opacity: .6;
+    }
   }
 
   &__new {
@@ -48,5 +60,12 @@
     cursor: pointer;
     font-weight: $fw-600;
     font-size: $fs-12;
+  }
+
+  // Estado visual cuando una tarjeta está sobre la columna (droppable over)
+  &.kanban-column--over {
+    outline: 2px dashed $brand;
+    background: color-mix(in srgb, $brand 8%, $bg);
+    box-shadow: $shadow-2;
   }
 }

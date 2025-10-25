@@ -5,6 +5,7 @@
   border-radius: $radius;
   padding: $space-3;
   box-shadow: $shadow-1;
+  transition: box-shadow .15s ease, transform .15s ease, opacity .1s ease;
 
   &__title {
     font-weight: $fw-600;
@@ -26,5 +27,15 @@
     cursor: pointer;
     font-size: $fs-12;
     font-weight: $fw-500;
+  }
+
+  &--dragging {
+    box-shadow: $shadow-2;
+    cursor: grabbing;
+    opacity: .9;
+  }
+
+  &:hover {
+    box-shadow: $shadow-2;
   }
 }
