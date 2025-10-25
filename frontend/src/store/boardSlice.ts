@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Column, Task } from '../types'
+import { Column } from '../interfaces/column'
+import { Task } from '../interfaces/task'
 import { api } from '../api'
 
 export type BoardState = {
@@ -19,6 +20,19 @@ export const fetchColumns = createAsyncThunk<Column[]>(
     const res = await api('/columns')
     if (!res.ok) throw new Error('Error cargando columnas')
     return res.json()
+  }
+)
+
+export const seedBoard = createAsyncThunk<Column[]>(
+  'board/seed',
+  async (_, { dispatch }) => {
+    // seed default board/columns on backend, then load columns
+    await api('/boards/seed')
+    const res = await api('/columns')
+    if (!res.ok) throw new Error('Error cargando columnas tras seed')
+    const cols = await res.json()
+    // also push into state by returning
+    return cols
   }
 )
 
@@ -68,6 +82,17 @@ const boardSlice = createSlice({
         const task = action.payload
         const col = state.columns.find((c) => c.id === (task as any).column?.id || (task as any).columnId)
         if (col) col.tasks.push(task)
+      })
+      .addCase(seedBoard.pending, (state: BoardState) => {
+        state.status = 'loading'
+      })
+      .addCase(seedBoard.fulfilled, (state: BoardState, action: { payload: Column[] }) => {
+        state.status = 'succeeded'
+        state.columns = action.payload
+      })
+      .addCase(seedBoard.rejected, (state: BoardState, action: { error: { message?: string } }) => {
+        state.status = 'failed'
+        state.error = action.error.message
       })
       .addCase(
         moveTaskThunk.fulfilled,

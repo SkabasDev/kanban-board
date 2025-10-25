@@ -23,9 +23,23 @@ export class TasksService {
     if (!task) throw new NotFoundException('Task not found')
     const toColumn = await this.columns.findOne({ where: { id: toColumnId } })
     if (!toColumn) throw new NotFoundException('Target column not found')
-    const fromColumnId = task.column.id
+    const fromColumnId = (task as any).column?.id
     task.column = toColumn
-    const saved = await this.tasks.save(task)
-    return { task: saved, fromColumnId, toColumnId }
+    await this.tasks.save(task)
+    return { task, fromColumnId, toColumnId }
+  }
+
+  async archive(taskId: string) {
+    const task = await this.tasks.findOne({ where: { id: taskId } })
+    if (!task) throw new NotFoundException('Task not found')
+    await this.tasks.softDelete(taskId)
+    return { id: taskId, archived: true }
+  }
+
+  async restore(taskId: string) {
+    await this.tasks.restore(taskId)
+    const restored = await this.tasks.findOne({ where: { id: taskId } })
+    if (!restored) throw new NotFoundException('Task not found')
+    return { id: taskId, archived: false }
   }
 }

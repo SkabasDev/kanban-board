@@ -1,0 +1,30 @@
+@use '../variables' as *;
+.task-card {
+  background: $surface;
+  border: 1px solid $divider;
+  border-radius: $radius;
+  padding: $space-3;
+  box-shadow: $shadow-1;
+
+  &__title {
+    font-weight: $fw-600;
+    font-size: $fs-14;
+    color: $text;
+  }
+
+  &__actions {
+    margin-top: $space-3;
+    display: flex;
+    gap: $space-2;
+  }
+
+  &__btn {
+    padding: $space-1 $space-2;
+    border-radius: $radius;
+    border: 1px solid $divider;
+    background: $bg;
+    cursor: pointer;
+    font-size: $fs-12;
+    font-weight: $fw-500;
+  }
+}

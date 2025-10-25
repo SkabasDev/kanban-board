@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import KanbanBoard from './components/KanbanBoard'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './store'
-import { addTaskThunk, fetchColumns, moveTaskThunk } from './store/boardSlice'
+import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard } from './store/boardSlice'
 
 export default function App() {
   const dispatch = useDispatch()
@@ -13,6 +13,12 @@ export default function App() {
     dispatch<any>(fetchColumns())
   }, [dispatch])
 
+  useEffect(() => {
+    if (status === 'succeeded' && columns.length === 0) {
+      dispatch<any>(seedBoard())
+    }
+  }, [status, columns.length, dispatch])
+
   const addTask = (columnId: string, title: string) => {
     dispatch<any>(addTaskThunk({ columnId, title }))
   }
@@ -22,8 +28,8 @@ export default function App() {
   }
 
   return (
-    <div style={{ padding: 16 }}>
-      <h1>Kanban</h1>
+    <div className="kanban-page">
+      <h1>Tablero Kanban</h1>
       {status === 'loading' && <div>Cargando...</div>}
       <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} />
     </div>

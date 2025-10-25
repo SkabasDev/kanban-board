@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm'
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm'
 import { ColumnEntity } from '../columns/column.entity'
 
 @Entity('tasks')
@@ -14,4 +14,13 @@ export class Task {
 
   @ManyToOne(() => ColumnEntity, (c) => c.tasks, { onDelete: 'CASCADE' })
   column!: ColumnEntity
+
+  @CreateDateColumn({ type: 'timestamptz' })
+  created_at!: Date
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updated_at!: Date
+
+  @DeleteDateColumn({ type: 'timestamptz', nullable: true })
+  deleted_at?: Date | null
 }

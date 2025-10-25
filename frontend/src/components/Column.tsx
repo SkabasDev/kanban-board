@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Column as ColumnType } from '../types'
+import { Column as ColumnType } from '../interfaces/column'
 import TaskCard from './TaskCard'
 
 export default function Column({ column, allColumns, onAddTask, onMoveTask }: {
@@ -9,18 +9,24 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask }: {
   onMoveTask: (taskId: string, toColumnId: string, position?: number) => void
 }) {
   const [title, setTitle] = useState('')
+  const nameMap: Record<string, string> = {
+    'ToDo': 'Pendiente',
+    'Doing': 'En Progreso',
+    'Done': 'Completada',
+  }
+  const displayName = nameMap[column.name] ?? column.name
 
   return (
-    <div style={{ width: 280, background: '#f8f8f8', borderRadius: 8, padding: 12 }}>
-      <h3 style={{ marginTop: 0 }}>{column.name}</h3>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+    <div className="kanban-column">
+      <h3 className="kanban-column__title">{displayName}</h3>
+      <div className="kanban-column__new">
+        <input className="kanban-column__input" value={title} onChange={e => setTitle(e.target.value)} placeholder="Nueva tarea" />
+        <button className="kanban-column__add" onClick={() => { if (title.trim()) { onAddTask(column.id, title.trim()); setTitle('') }}}>Añadir</button>
+      </div>
+      <div className="kanban-column__list">
         {column.tasks.map(t => (
           <TaskCard key={t.id} task={t} columns={allColumns} onMove={(to) => onMoveTask(t.id, to)} />
         ))}
-      </div>
-      <div style={{ marginTop: 12, display: 'flex', gap: 8 }}>
-        <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Nueva tarea" />
-        <button onClick={() => { if (title.trim()) { onAddTask(column.id, title.trim()); setTitle('') }}}>Añadir</button>
       </div>
     </div>
   )

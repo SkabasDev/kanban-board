@@ -14,4 +14,14 @@ export class TasksController {
   move(@Param('id') id: string, @Body('toColumnId') toColumnId: string) {
     return this.tasks.move(id, toColumnId)
   }
+
+  @Patch(':id/archive')
+  archive(@Param('id') id: string) {
+    return this.tasks.archive(id)
+  }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.tasks.restore(id)
+  }
 }

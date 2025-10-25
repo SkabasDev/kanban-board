@@ -1,4 +1,4 @@
-import { Column as ColumnType } from '../types'
+import { Column as ColumnType } from '../interfaces/column'
 import Column from './Column'
 
 export default function KanbanBoard({ columns, onAddTask, onMoveTask }: {
@@ -7,7 +7,7 @@ export default function KanbanBoard({ columns, onAddTask, onMoveTask }: {
   onMoveTask: (taskId: string, toColumnId: string, position?: number) => void
 }) {
   return (
-    <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+    <div className="kanban-board">
       {columns.map(col => (
         <Column
           key={col.id}
