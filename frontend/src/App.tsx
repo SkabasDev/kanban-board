@@ -3,6 +3,7 @@ import KanbanBoard from './components/KanbanBoard'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './store'
 import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard } from './store/boardSlice'
+import Logo from './assets/logo.svg'
 
 export default function App() {
   const dispatch = useDispatch()
@@ -19,8 +20,8 @@ export default function App() {
     }
   }, [status, columns.length, dispatch])
 
-  const addTask = (columnId: string, title: string) => {
-    dispatch<any>(addTaskThunk({ columnId, title }))
+  const addTask = (columnId: string, title: string, description?: string) => {
+    dispatch<any>(addTaskThunk({ columnId, title, description }))
   }
 
   const moveTask = (taskId: string, toColumnId: string, position?: number) => {
@@ -29,11 +30,15 @@ export default function App() {
 
   return (
     <div className="kanban-page">
-      <div className="kanban-page__header">
-        <h1>Tablero Kanban</h1>
-      </div>
+      <div className='kanban-page__containter'>
+        <div className="kanban-page__containter__header">
+        <img src={Logo} className='kanban-page__containter__header__logo'/>
+        <h1 className='kanban-page__containter__header__title'>Tablero Kanban</h1>
+        </div>
       {status === 'loading' && <div>Cargando...</div>}
       <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} />
+      </div>
     </div>
   )
 }
+

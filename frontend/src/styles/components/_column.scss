@@ -1,34 +1,76 @@
 @use '../variables' as *;
+
 .kanban-column {
-  width: 280px;
-  background: $bg;
-  border-radius: $radius;
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: $primary;
   padding: $space-3;
   box-shadow: $shadow-1;
   border: 1px solid $divider;
   text-align: center;
 
-  &__title {
-    margin: 0 0 $space-2 0;
-    font-weight: $fw-700;
-    font-size: $fs-14;
-    letter-spacing: .06em;
-    color: $text;
-    text-transform: uppercase;
+  &__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    height: 10%;
+    gap: $space-2;
+
+    &__title {
+      margin: 0 0 $space-2 0;
+      font-weight: $fw-700;
+      font-size: $fs-14;
+      letter-spacing: .06em;
+      color: $text;
+      text-transform: uppercase;
+    }
+
+    &__new {
+      margin-top: $space-4;
+      display: flex;
+      gap: $space-2;
+    }
+
+    &__input {
+      flex: 1;
+      padding: $space-2;
+      border: 1px solid $divider;
+      border-radius: $radius-8;
+      background: $surface;
+      font-size: $fs-14;
+    }
+
+    &__add {
+      padding: $space-2 $space-3;
+      border-radius: $radius-8;
+      background: $surface;
+      color: black;
+      border: none;
+      cursor: pointer;
+      font-weight: $fw-600;
+      font-size: $fs-12;
+    }
   }
+
 
   &__list {
     display: flex;
     flex-direction: column;
     gap: $space-3;
-    min-height: 40px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
     position: relative;
     transition: background-color .15s ease, box-shadow .15s ease;
 
     &::after {
       content: 'Arrastra una tarjeta aquí';
+      margin-top: auto;
       display: block;
-      color: $muted;
+      color: black;
       font-size: $fs-12;
       text-align: center;
       padding: $space-2;
@@ -36,36 +78,11 @@
     }
   }
 
-  &__new {
-    margin-top: $space-4;
-    display: flex;
-    gap: $space-2;
-  }
-
-  &__input {
-    flex: 1;
-    padding: $space-2;
-    border: 1px solid $divider;
-    border-radius: $radius;
-    background: $surface;
-    font-size: $fs-14;
-  }
-
-  &__add {
-    padding: $space-2 $space-3;
-    border-radius: $radius;
-    background: $brand;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    font-weight: $fw-600;
-    font-size: $fs-12;
-  }
 
   // Estado visual cuando una tarjeta está sobre la columna (droppable over)
   &.kanban-column--over {
     outline: 2px dashed $brand;
-    background: color-mix(in srgb, $brand 8%, $bg);
+    background: color-mix(in srgb, $secondary 1%, $surface);
     box-shadow: $shadow-2;
   }
 }

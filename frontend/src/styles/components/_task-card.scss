@@ -1,8 +1,8 @@
 @use '../variables' as *;
 .task-card {
-  background: $surface;
+  background: $secondary;
   border: 1px solid $divider;
-  border-radius: $radius;
+  border-radius: $radius-8;
   padding: $space-3;
   box-shadow: $shadow-1;
   transition: box-shadow .15s ease, transform .15s ease, opacity .1s ease;
@@ -21,7 +21,7 @@
 
   &__btn {
     padding: $space-1 $space-2;
-    border-radius: $radius;
+    border-radius: $radius-8;
     border: 1px solid $divider;
     background: $bg;
     cursor: pointer;

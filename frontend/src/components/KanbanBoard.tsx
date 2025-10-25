@@ -4,7 +4,7 @@ import { DndContext, DragEndEvent } from '@dnd-kit/core'
 
 export default function KanbanBoard({ columns, onAddTask, onMoveTask }: {
   columns: ColumnType[]
-  onAddTask: (columnId: string, title: string) => void
+  onAddTask: (columnId: string, title: string, description?: string) => void
   onMoveTask: (taskId: string, toColumnId: string, position?: number) => void
 }) {
   const handleDragEnd = (event: DragEndEvent) => {

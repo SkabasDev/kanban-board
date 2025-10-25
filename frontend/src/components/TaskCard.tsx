@@ -10,10 +10,7 @@ export default function TaskCard({ task, columns, onMove }: { task: Task; column
   } : undefined
 
   return (
-    <div
-      ref={setNodeRef}
-      className={`task-card${isDragging ? ' task-card--dragging' : ''}`}
-      style={{ background: 'white', border: '1px solid #ddd', borderRadius: 6, padding: 8, ...style }}
+    <div ref={setNodeRef} className={`task-card${isDragging ? ' task-card--dragging' : ''}`}
       {...listeners}
       {...attributes}
     >

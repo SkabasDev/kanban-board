@@ -1,6 +1,7 @@
 @use './variables' as *;
 @use './components/kanban-board';
 @use './components/column';
+@use './components/modal';
 @use './components/task-card';
 
 html,
@@ -8,7 +9,7 @@ body,
 #root {
   height: 100%;
   width: 100%;
-  overflow: hidden; // avoid scrollbars, page is sized to viewport
+  overflow: hidden;
 }
 
 body {
@@ -23,12 +24,55 @@ body {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  // background-color: #ff7e08;
-  background-color: $surface;
+  background-color: $secondary;
   width: 100%;
-  height: 100vh; // fallback
-  height: 100svh; // modern small viewport units (mobile safe)
+  height: 100vh;
+  // height: 100svh;
   box-sizing: border-box;
   overflow: hidden;
-  padding: $space-4;
+
+  &__containter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+    width: 70%;
+    height: 70%;
+    background-color: transparent;
+    box-sizing: border-box;
+    border-radius: $radius-24;
+    box-shadow: $shadow-1;
+    border: 1px solid rgb(0, 0, 0);
+    overflow: hidden;
+
+    &__header {
+      flex: 1 1 20%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      background-color: $surface;
+    
+      &__logo {
+        width: 30%
+      }
+
+      &__title {
+        margin: 0;
+        font-size: $fs-16;
+        font-weight: $fw-700;
+        letter-spacing: .06em;
+        color: black;
+        text-transform: uppercase;
+        margin: 56px 0 0 0;
+
+      }
+    }
+
+    .kanban-board {
+      flex: 1 1 80%;
+      width: 100%;
+      height: 100%;
+    }
+  }
 }
