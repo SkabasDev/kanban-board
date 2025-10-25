@@ -1,0 +1,9 @@
+node_modules
+.dist
+.next
+.vite
+.cache
+.DS_Store
+coverage
+dist
+.env
