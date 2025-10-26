@@ -53,7 +53,7 @@ export default function Column({ column, onAddTask, onMoveTask, onUpdateTask, on
 
       <Modal
         open={show}
-        title={deleteMode ? 'Seguro que quieres eliminar esta tarea?' : ('Estas editando esta vacante')}
+        title={deleteMode ? 'Seguro que quieres eliminar esta tarea?' : ('Estas editando esta tarea')}
         onClose={() => { setShow(false); }}
       >
         <div className="modal__body">
