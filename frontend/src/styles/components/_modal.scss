@@ -73,6 +73,14 @@
       background: #ff7e08;
       color: #fff;
       border-color: #ff7e08;
+      &:hover { filter: brightness(0.95); }
+    }
+
+    &--danger {
+      background: #e53935;
+      color: #fff;
+      border-color: #e53935;
+      &:hover { filter: brightness(0.95); }
     }
   }
 }

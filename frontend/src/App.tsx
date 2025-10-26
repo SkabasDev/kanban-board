@@ -2,8 +2,9 @@ import { useEffect } from 'react'
 import KanbanBoard from './components/KanbanBoard'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './store'
-import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard, updateTaskThunk } from './store/boardSlice'
+import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard, updateTaskThunk, archiveTaskThunk } from './store/boardSlice'
 import Logo from './assets/logo.svg'
+import { DndContext, DragEndEvent } from '@dnd-kit/core'
 
 export default function App() {
   const dispatch = useDispatch()
@@ -32,17 +33,36 @@ export default function App() {
     dispatch<any>(updateTaskThunk({ taskId, ...data }))
   }
 
+  const archiveTask = (taskId: number) => {
+    dispatch<any>(archiveTaskThunk({ taskId }))
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over) return
+    const taskId = Number(active.id)
+    if (over.id === 'trash') {
+      archiveTask(taskId)
+      return
+    }
+    const toColumnId = Number(over.id)
+    moveTask(taskId, toColumnId)
+  }
+
+
   return (
-    <div className="kanban-page">
-      <div className='kanban-page__containter'>
-        <div className="kanban-page__containter__header">
-        <img src={Logo} className='kanban-page__containter__header__logo'/>
-        <h1 className='kanban-page__containter__header__title'>Tablero Kanban</h1>
+    <DndContext onDragEnd={handleDragEnd}>
+      <div className="kanban-page">
+        <div className='kanban-page__containter'>
+          <div className="kanban-page__containter__header">
+          <img src={Logo} className='kanban-page__containter__header__logo'/>
+          <h1 className='kanban-page__containter__header__title'>Tablero Kanban</h1>
+          </div>
+        {status === 'loading' && <div>Cargando...</div>}
+        <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} onUpdateTask={updateTask} onArchiveTask={archiveTask} />
         </div>
-      {status === 'loading' && <div>Cargando...</div>}
-      <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} onUpdateTask={updateTask} />
       </div>
-    </div>
+    </DndContext>
   )
 }
 

@@ -4,17 +4,19 @@ import TaskCard from './TaskCard'
 import { useDroppable } from '@dnd-kit/core'
 import Modal from './Modal'
 
-export default function Column({ column, allColumns, onAddTask, onMoveTask, onUpdateTask }: {
+export default function Column({ column, allColumns, onAddTask, onMoveTask, onUpdateTask, onArchiveTask }: {
   column: ColumnType
   allColumns: ColumnType[]
   onAddTask: (columnId: number, title: string, description?: string) => void
   onMoveTask: (taskId: number, toColumnId: number, position?: number) => void
   onUpdateTask?: (taskId: number, data: { title?: string; description?: string }) => void
+  onArchiveTask?: (taskId: number) => void
 }) {
   const [showModal, setShowModal] = useState(false)
   const [newTitle, setNewTitle] = useState('')
   const [newDesc, setNewDesc] = useState('')
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null)
+  const [deleteMode, setDeleteMode] = useState(false)
   const nameMap: Record<string, string> = {
     'ToDo': 'Pendiente',
     'Doing': 'En Progreso',
@@ -36,10 +38,18 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask, onUp
             task={t}
             columns={allColumns}
             onMove={(to) => onMoveTask(t.id, to)}
+            onDelete={() => {
+              setEditingTaskId(t.id)
+              setNewTitle(t.title)
+              setNewDesc(t.description ?? '')
+              setDeleteMode(true)
+              setShowModal(true)
+            }}
             onOpen={() => {
               setEditingTaskId(t.id)
               setNewTitle(t.title)
               setNewDesc(t.description ?? '')
+              setDeleteMode(false)
               setShowModal(true)
             }}
           />
@@ -48,8 +58,8 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask, onUp
 
       <Modal
         open={showModal}
-        title={editingTaskId ? 'Estas editando esta vacante' : '¿Quieres crear una nueva tarea?'}
-        onClose={() => { setShowModal(false); setEditingTaskId(null); }}
+        title={deleteMode ? 'Seguro que quieres eliminar esta tarea?' : (editingTaskId ? 'Estas editando esta vacante' : '¿Quieres crear una nueva tarea?')}
+        onClose={() => { setShowModal(false); setEditingTaskId(null); setDeleteMode(false); }}
       >
         <div className="modal__body">
           <label className="modal__label">Nombre de la tarea</label>
@@ -57,6 +67,7 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask, onUp
             className="modal__input"
             value={newTitle}
             onChange={e => setNewTitle(e.target.value)}
+            disabled={deleteMode}
             placeholder="Ej. Diseñar pantalla de login"
           />
           <label className="modal__label">Descripción</label>
@@ -64,13 +75,21 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask, onUp
             className="modal__textarea"
             value={newDesc}
             onChange={e => setNewDesc(e.target.value)}
+            disabled={deleteMode}
             placeholder="Detalles opcionales de la tarea"
             rows={4}
           />
           <div className="modal__actions">
             <button
-              className="modal__btn modal__btn--primary"
+              className={`modal__btn ${deleteMode ? 'modal__btn--danger' : 'modal__btn--primary'}`}
               onClick={() => {
+                if (deleteMode) {
+                  if (editingTaskId) onArchiveTask?.(editingTaskId)
+                  setShowModal(false)
+                  setEditingTaskId(null)
+                  setDeleteMode(false)
+                  return
+                }
                 if (!newTitle.trim()) return
                 if (editingTaskId) {
                   onUpdateTask?.(editingTaskId, { title: newTitle.trim(), description: newDesc.trim() || undefined })
@@ -84,7 +103,7 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask, onUp
                 }
               }}
             >
-              Guardar
+              {deleteMode ? 'Eliminar' : 'Guardar'}
             </button>
             <button className="modal__btn" onClick={() => { setShowModal(false) }}>Cancelar</button>
           </div>

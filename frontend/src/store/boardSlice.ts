@@ -2,12 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { Column } from '../interfaces/column'
 import { Task } from '../interfaces/task'
 import { api } from '../api'
-
-export type BoardState = {
-  columns: Column[]
-  status: 'idle' | 'loading' | 'succeeded' | 'failed'
-  error?: string
-}
+import { BoardState } from './types'
 
 const initialState: BoardState = {
   columns: [],
@@ -32,33 +27,32 @@ export const seedBoard = createAsyncThunk<Column[]>('board/seed',
   }
 )
 
-export const addTaskThunk = createAsyncThunk<Task, { columnId: number; title: string; description?: string }>(
-  'board/addTask',
+export const addTaskThunk = createAsyncThunk<Task, { columnId: number; title: string; description?: string }>('board/addTask',
   async ({ columnId, title, description }: { columnId: number; title: string; description?: string }) => {
-    const res = await api('/tasks', {
-      method: 'POST',
-      body: JSON.stringify({ columnId, title, description }),
-    })
+    const res = await api('/tasks', { method: 'POST', body: JSON.stringify({ columnId, title, description }), })
     if (!res.ok) throw new Error('Error creando tarea')
     return res.json()
   }
 )
 
-export const moveTaskThunk = createAsyncThunk<{ task: Task; fromColumnId: number; toColumnId: number },{ taskId: number; toColumnId: number }>('board/moveTask', async ({ taskId, toColumnId }: { taskId: number; toColumnId: number }) => {
-  const res = await api(`/tasks/${taskId}/move`, {
-    method: 'PATCH',
-    body: JSON.stringify({ toColumnId }),
-  })
+export const moveTaskThunk = createAsyncThunk<{ task: Task; fromColumnId: number; toColumnId: number }, { taskId: number; toColumnId: number }>('board/moveTask', async ({ taskId, toColumnId }: { taskId: number; toColumnId: number }) => {
+  const res = await api(`/tasks/${taskId}/move`, { method: 'PATCH', body: JSON.stringify({ toColumnId }), })
   if (!res.ok) throw new Error('Error moviendo tarea')
   return res.json()
 })
 
-export const updateTaskThunk = createAsyncThunk<Task,{ taskId: number; title?: string; description?: string }>('board/updateTask', async ({ taskId, title, description }) => {
+export const updateTaskThunk = createAsyncThunk<Task, { taskId: number; title?: string; description?: string }>('board/updateTask', async ({ taskId, title, description }) => {
   const res = await api(`/tasks/${taskId}`, {
     method: 'PATCH',
     body: JSON.stringify({ title, description }),
   })
   if (!res.ok) throw new Error('Error actualizando tarea')
+  return res.json()
+})
+
+export const archiveTaskThunk = createAsyncThunk<{ id: number; archived: boolean }, { taskId: number }>('board/archiveTask', async ({ taskId }) => {
+  const res = await api(`/tasks/${taskId}/archive`, { method: 'PATCH' })
+  if (!res.ok) throw new Error('Error archivando tarea')
   return res.json()
 })
 
@@ -112,13 +106,20 @@ const boardSlice = createSlice({
       )
       .addCase(updateTaskThunk.fulfilled, (state: BoardState, action: { payload: Task }) => {
         const updated = action.payload
-        // actualizar dentro de su columna actual
         for (const col of state.columns) {
           const idx = col.tasks.findIndex(t => t.id === updated.id)
           if (idx !== -1) {
             col.tasks[idx] = { ...col.tasks[idx], ...updated }
             break
           }
+        }
+      })
+      .addCase(archiveTaskThunk.fulfilled, (state: BoardState, action: { payload: { id: number; archived: boolean } }) => {
+        const taskId = action.payload.id
+        for (const col of state.columns) {
+          const before = col.tasks.length
+          col.tasks = col.tasks.filter(t => t.id !== taskId)
+          if (col.tasks.length !== before) break
         }
       })
   },
