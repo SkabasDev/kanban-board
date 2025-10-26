@@ -2,16 +2,19 @@ import { useEffect } from 'react'
 import KanbanBoard from './components/KanbanBoard'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './store'
-import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard, updateTaskThunk, archiveTaskThunk, clearSuccess } from './store/boardSlice'
+import { fetchColumns, seedBoard } from './store/boardSlice'
 import Logo from './assets/logo.svg'
-import { DndContext, DragEndEvent } from '@dnd-kit/core'
+import { DndContext } from '@dnd-kit/core'
+import { useBoardActions } from './hooks/useBoardActions'
+import { useAutoClearSuccess } from './hooks/useAutoClearSuccess'
+import { useDndHandlers } from './hooks/useDndHandlers'
 
 export default function App() {
   const dispatch = useDispatch()
   const columns = useSelector((s: RootState) => s.board.columns)
   const status = useSelector((s: RootState) => s.board.status)
   const error = useSelector((s: RootState) => s.board.error)
-  const success = useSelector((s: RootState) => s.board.success)
+  const { success, addTask, moveTask, updateTask, archiveTask } = useBoardActions()
 
   useEffect(() => {
     dispatch<any>(fetchColumns())
@@ -23,39 +26,9 @@ export default function App() {
     }
   }, [status, columns.length, dispatch])
 
-  useEffect(() => {
-    if (!success) return
-    const t = setTimeout(() => dispatch<any>(clearSuccess()), 2000)
-    return () => clearTimeout(t)
-  }, [success, dispatch])
+  useAutoClearSuccess(success, 2000)
 
-  const addTask = (columnId: number, title: string, description?: string) => {
-    dispatch<any>(addTaskThunk({ columnId, title, description }))
-  }
-
-  const moveTask = (taskId: number, toColumnId: number, position?: number) => {
-    dispatch<any>(moveTaskThunk({ taskId, toColumnId }))
-  }
-
-  const updateTask = (taskId: number, data: { title?: string; description?: string }) => {
-    dispatch<any>(updateTaskThunk({ taskId, ...data }))
-  }
-
-  const archiveTask = (taskId: number) => {
-    dispatch<any>(archiveTaskThunk({ taskId }))
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
-    if (!over) return
-    const taskId = Number(active.id)
-    if (over.id === 'trash') {
-      archiveTask(taskId)
-      return
-    }
-    const toColumnId = Number(over.id)
-    moveTask(taskId, toColumnId)
-  }
+  const { handleDragEnd } = useDndHandlers({ moveTask, archiveTask })
 
 
   return (
