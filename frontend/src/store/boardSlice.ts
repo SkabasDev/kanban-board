@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import { Column } from '../interfaces/column'
-import { Task } from '../interfaces/task'
+import { Column } from '../models/column'
+import { Task } from '../models/task'
 import { api } from '../api'
 import { BoardState } from './types'
 
@@ -59,7 +59,11 @@ export const archiveTaskThunk = createAsyncThunk<{ id: number; archived: boolean
 const boardSlice = createSlice({
   name: 'board',
   initialState,
-  reducers: {},
+  reducers: {
+    clearSuccess(state: BoardState) {
+      state.success = undefined
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchColumns.pending, (state: BoardState) => {
@@ -79,6 +83,7 @@ const boardSlice = createSlice({
         const colId = (task as any).columnId ?? (task as any).column?.id
         const col = state.columns.find((c) => String(c.id) === String(colId))
         if (col) col.tasks.push(task)
+        state.success = 'Task created successfully'
       })
       .addCase(seedBoard.pending, (state: BoardState) => {
         state.status = 'loading'
@@ -113,6 +118,10 @@ const boardSlice = createSlice({
             break
           }
         }
+        state.success = 'Task updated successfully'
+      })
+      .addCase(updateTaskThunk.rejected, (state: BoardState, action: { error: { message?: string } }) => {
+        state.error = action.error.message
       })
       .addCase(archiveTaskThunk.fulfilled, (state: BoardState, action: { payload: { id: number; archived: boolean } }) => {
         const taskId = action.payload.id
@@ -121,8 +130,14 @@ const boardSlice = createSlice({
           col.tasks = col.tasks.filter(t => t.id !== taskId)
           if (col.tasks.length !== before) break
         }
+        state.success = 'Task deleted successfully'
       })
+      .addCase(addTaskThunk.pending, (state: BoardState) => { state.error = undefined; state.success = undefined })
+      .addCase(moveTaskThunk.pending, (state: BoardState) => { state.error = undefined; state.success = undefined })
+      .addCase(updateTaskThunk.pending, (state: BoardState) => { state.error = undefined; state.success = undefined })
+      .addCase(archiveTaskThunk.pending, (state: BoardState) => { state.error = undefined; state.success = undefined })
   },
 })
 
+export const { clearSuccess } = boardSlice.actions
 export default boardSlice.reducer

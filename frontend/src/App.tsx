@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import KanbanBoard from './components/KanbanBoard'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './store'
-import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard, updateTaskThunk, archiveTaskThunk } from './store/boardSlice'
+import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard, updateTaskThunk, archiveTaskThunk, clearSuccess } from './store/boardSlice'
 import Logo from './assets/logo.svg'
 import { DndContext, DragEndEvent } from '@dnd-kit/core'
 
@@ -10,6 +10,8 @@ export default function App() {
   const dispatch = useDispatch()
   const columns = useSelector((s: RootState) => s.board.columns)
   const status = useSelector((s: RootState) => s.board.status)
+  const error = useSelector((s: RootState) => s.board.error)
+  const success = useSelector((s: RootState) => s.board.success)
 
   useEffect(() => {
     dispatch<any>(fetchColumns())
@@ -20,6 +22,12 @@ export default function App() {
       dispatch<any>(seedBoard())
     }
   }, [status, columns.length, dispatch])
+
+  useEffect(() => {
+    if (!success) return
+    const t = setTimeout(() => dispatch<any>(clearSuccess()), 2000)
+    return () => clearTimeout(t)
+  }, [success, dispatch])
 
   const addTask = (columnId: number, title: string, description?: string) => {
     dispatch<any>(addTaskThunk({ columnId, title, description }))
@@ -52,6 +60,7 @@ export default function App() {
 
   return (
     <DndContext onDragEnd={handleDragEnd}>
+      {success && (<div className="alert alert--success">{success}</div>)}
       <div className="kanban-page">
         <div className='kanban-page__containter'>
           <div className="kanban-page__containter__header">
@@ -59,10 +68,10 @@ export default function App() {
           <h1 className='kanban-page__containter__header__title'>Tablero Kanban</h1>
           </div>
         {status === 'loading' && <div>Cargando...</div>}
+        {error && (<div className="alert alert--error">{error}</div>)}
         <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} onUpdateTask={updateTask} onArchiveTask={archiveTask} />
         </div>
       </div>
     </DndContext>
   )
 }
-

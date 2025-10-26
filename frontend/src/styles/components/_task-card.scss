@@ -43,12 +43,18 @@
     box-shadow: $shadow-2;
   }
 
-  &__handle {
+  &__handle  {
+    border: none;
     margin-left: auto;
     cursor: grab;
     display: inline-block;
     font-size: $fs-12;
     font-weight: $fw-500;
     color: $text;
+    background-color: transparent;
+  }
+  &__delete{
+    border: none;
+    background-color: transparent;
   }
 }

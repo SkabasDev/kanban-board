@@ -1,14 +1,19 @@
 import { useState } from 'react'
-import { Column as ColumnType } from '../interfaces/column'
+import { Column as ColumnType } from '../models/column'
 import TaskCard from './TaskCard'
 import { useDroppable } from '@dnd-kit/core'
 import Modal from './Modal'
 
-export default function Column({ column, allColumns, onAddTask, onMoveTask, onUpdateTask, onArchiveTask }: {
+const NAME_MAP: Record<string, string> = {
+  'ToDo': 'Pendiente',
+  'Doing': 'En Progreso',
+  'Done': 'Completada',
+}
+
+export default function Column({ column, onAddTask, onMoveTask, onUpdateTask, onArchiveTask }: {
   column: ColumnType
-  allColumns: ColumnType[]
   onAddTask: (columnId: number, title: string, description?: string) => void
-  onMoveTask: (taskId: number, toColumnId: number, position?: number) => void
+  onMoveTask: (taskId: number, toColumnId: number) => void
   onUpdateTask?: (taskId: number, data: { title?: string; description?: string }) => void
   onArchiveTask?: (taskId: number) => void
 }) {
@@ -17,12 +22,7 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask, onUp
   const [newDesc, setNewDesc] = useState('')
   const [editingTaskId, setEditingTaskId] = useState<number | null>(null)
   const [deleteMode, setDeleteMode] = useState(false)
-  const nameMap: Record<string, string> = {
-    'ToDo': 'Pendiente',
-    'Doing': 'En Progreso',
-    'Done': 'Completada',
-  }
-  const displayName = nameMap[column.name] ?? column.name
+  const displayName = NAME_MAP[column.name] ?? column.name
   const { isOver, setNodeRef } = useDroppable({ id: column.id })
 
   return (
@@ -36,8 +36,6 @@ export default function Column({ column, allColumns, onAddTask, onMoveTask, onUp
           <TaskCard
             key={t.id}
             task={t}
-            columns={allColumns}
-            onMove={(to) => onMoveTask(t.id, to)}
             onDelete={() => {
               setEditingTaskId(t.id)
               setNewTitle(t.title)
