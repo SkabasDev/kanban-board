@@ -1,5 +1,9 @@
 @use '../variables' as *;
 .task-card {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
   background: $secondary;
   border: 1px solid $divider;
   border-radius: $radius-8;
@@ -37,5 +41,15 @@
 
   &:hover {
     box-shadow: $shadow-2;
+  }
+
+  &__handle {
+    margin-left: auto;
+    cursor: grab;
+    display: inline-block;
+    float: right;
+    font-size: $fs-12;
+    font-weight: $fw-500;
+    color: $text;
   }
 }

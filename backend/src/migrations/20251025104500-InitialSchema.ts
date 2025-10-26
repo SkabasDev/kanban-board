@@ -4,25 +4,24 @@ export class InitialSchema20251025104500 implements MigrationInterface {
   name = 'InitialSchema20251025104500'
 
   public async up(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "pgcrypto"`);
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS "boards" (
-      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      "id" BIGSERIAL PRIMARY KEY,
       "name" text NOT NULL
     )`);
 
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS "columns" (
-      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      "id" BIGSERIAL PRIMARY KEY,
       "name" text NOT NULL,
-      "boardId" uuid NOT NULL,
+      "boardId" INTEGER NOT NULL,
       CONSTRAINT "FK_columns_board" FOREIGN KEY ("boardId") REFERENCES "boards"("id") ON DELETE CASCADE
     )`);
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_columns_board" ON "columns" ("boardId")`);
 
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS "tasks" (
-      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+      "id" BIGSERIAL PRIMARY KEY,
       "title" text NOT NULL,
       "description" text,
-      "columnId" uuid NOT NULL,
+      "columnId" INTEGER NOT NULL,
       "created_at" timestamptz NOT NULL DEFAULT now(),
       "updated_at" timestamptz NOT NULL DEFAULT now(),
       "deleted_at" timestamptz,
@@ -31,11 +30,11 @@ export class InitialSchema20251025104500 implements MigrationInterface {
     await queryRunner.query(`CREATE INDEX IF NOT EXISTS "IDX_tasks_column" ON "tasks" ("columnId")`);
 
     await queryRunner.query(`CREATE TABLE IF NOT EXISTS "task_logs" (
-      "id" uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-      "task_id" uuid NOT NULL,
-      "board_id" uuid,
-      "from_column_id" uuid,
-      "to_column_id" uuid,
+      "id" BIGSERIAL PRIMARY KEY,
+      "task_id" INTEGER NOT NULL,
+      "board_id" INTEGER,
+      "from_column_id" INTEGER,
+      "to_column_id" INTEGER,
       "action" text NOT NULL,
       "payload" jsonb,
       "created_at" timestamptz NOT NULL DEFAULT now(),
@@ -57,3 +56,4 @@ export class InitialSchema20251025104500 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE IF EXISTS "boards"`);
   }
 }
+

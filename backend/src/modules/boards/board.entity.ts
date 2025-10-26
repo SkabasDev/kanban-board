@@ -3,8 +3,8 @@ import { ColumnEntity } from '../columns/column.entity'
 
 @Entity('boards')
 export class Board {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string
+  @PrimaryGeneratedColumn()
+  id!: number
 
   @Column()
   name!: string

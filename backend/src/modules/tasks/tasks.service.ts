@@ -11,14 +11,23 @@ export class TasksService {
     @InjectRepository(ColumnEntity) private readonly columns: Repository<ColumnEntity>,
   ) {}
 
-  async create(dto: { columnId: string; title: string; description?: string }) {
+  async create(dto: { columnId: number; title: string; description?: string }) {
     const column = await this.columns.findOne({ where: { id: dto.columnId } })
     if (!column) throw new NotFoundException('Column not found')
     const task = this.tasks.create({ title: dto.title, description: dto.description, column })
     return this.tasks.save(task)
   }
 
-  async move(taskId: string, toColumnId: string) {
+  async update(taskId: number, dto: { title?: string; description?: string }) {
+    const task = await this.tasks.findOne({ where: { id: taskId } })
+    if (!task) throw new NotFoundException('Task not found')
+    if (typeof dto.title === 'string') task.title = dto.title
+    if (typeof dto.description === 'string' || dto.description === null) task.description = dto.description ?? null as any
+    await this.tasks.save(task)
+    return task
+  }
+
+  async move(taskId: number, toColumnId: number) {
     const task = await this.tasks.findOne({ where: { id: taskId }, relations: ['column'] })
     if (!task) throw new NotFoundException('Task not found')
     const toColumn = await this.columns.findOne({ where: { id: toColumnId } })
@@ -29,17 +38,18 @@ export class TasksService {
     return { task, fromColumnId, toColumnId }
   }
 
-  async archive(taskId: string) {
+  async archive(taskId: number) {
     const task = await this.tasks.findOne({ where: { id: taskId } })
     if (!task) throw new NotFoundException('Task not found')
     await this.tasks.softDelete(taskId)
     return { id: taskId, archived: true }
   }
 
-  async restore(taskId: string) {
+  async restore(taskId: number) {
     await this.tasks.restore(taskId)
     const restored = await this.tasks.findOne({ where: { id: taskId } })
     if (!restored) throw new NotFoundException('Task not found')
     return { id: taskId, archived: false }
   }
 }
+

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import KanbanBoard from './components/KanbanBoard'
 import { useDispatch, useSelector } from 'react-redux'
 import { RootState } from './store'
-import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard } from './store/boardSlice'
+import { addTaskThunk, fetchColumns, moveTaskThunk, seedBoard, updateTaskThunk } from './store/boardSlice'
 import Logo from './assets/logo.svg'
 
 export default function App() {
@@ -20,12 +20,16 @@ export default function App() {
     }
   }, [status, columns.length, dispatch])
 
-  const addTask = (columnId: string, title: string, description?: string) => {
+  const addTask = (columnId: number, title: string, description?: string) => {
     dispatch<any>(addTaskThunk({ columnId, title, description }))
   }
 
-  const moveTask = (taskId: string, toColumnId: string, position?: number) => {
+  const moveTask = (taskId: number, toColumnId: number, position?: number) => {
     dispatch<any>(moveTaskThunk({ taskId, toColumnId }))
+  }
+
+  const updateTask = (taskId: number, data: { title?: string; description?: string }) => {
+    dispatch<any>(updateTaskThunk({ taskId, ...data }))
   }
 
   return (
@@ -36,7 +40,7 @@ export default function App() {
         <h1 className='kanban-page__containter__header__title'>Tablero Kanban</h1>
         </div>
       {status === 'loading' && <div>Cargando...</div>}
-      <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} />
+      <KanbanBoard columns={columns} onAddTask={addTask} onMoveTask={moveTask} onUpdateTask={updateTask} />
       </div>
     </div>
   )

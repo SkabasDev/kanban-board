@@ -4,8 +4,8 @@ import { Task } from '../tasks/task.entity'
 
 @Entity('columns')
 export class ColumnEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id!: string
+  @PrimaryGeneratedColumn()
+  id!: number
 
   @Column()
   name!: string

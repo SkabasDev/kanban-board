@@ -1,7 +1,7 @@
 import type { Column } from './column'
 
 export type Board = {
-  id: string
+  id: number
   name: string
   columns: Column[]
 }

@@ -14,8 +14,7 @@ const initialState: BoardState = {
   status: 'idle',
 }
 
-export const fetchColumns = createAsyncThunk<Column[]>(
-  'board/fetchColumns',
+export const fetchColumns = createAsyncThunk<Column[]>('board/fetchColumns',
   async () => {
     const res = await api('/columns')
     if (!res.ok) throw new Error('Error cargando columnas')
@@ -23,22 +22,19 @@ export const fetchColumns = createAsyncThunk<Column[]>(
   }
 )
 
-export const seedBoard = createAsyncThunk<Column[]>(
-  'board/seed',
+export const seedBoard = createAsyncThunk<Column[]>('board/seed',
   async (_, { dispatch }) => {
-    // seed default board/columns on backend, then load columns
     await api('/boards/seed')
     const res = await api('/columns')
     if (!res.ok) throw new Error('Error cargando columnas tras seed')
     const cols = await res.json()
-    // also push into state by returning
     return cols
   }
 )
 
-export const addTaskThunk = createAsyncThunk<Task, { columnId: string; title: string; description?: string }>(
+export const addTaskThunk = createAsyncThunk<Task, { columnId: number; title: string; description?: string }>(
   'board/addTask',
-  async ({ columnId, title, description }: { columnId: string; title: string; description?: string }) => {
+  async ({ columnId, title, description }: { columnId: number; title: string; description?: string }) => {
     const res = await api('/tasks', {
       method: 'POST',
       body: JSON.stringify({ columnId, title, description }),
@@ -48,15 +44,21 @@ export const addTaskThunk = createAsyncThunk<Task, { columnId: string; title: st
   }
 )
 
-export const moveTaskThunk = createAsyncThunk<
-  { task: Task; fromColumnId: string; toColumnId: string },
-  { taskId: string; toColumnId: string }
->('board/moveTask', async ({ taskId, toColumnId }: { taskId: string; toColumnId: string }) => {
+export const moveTaskThunk = createAsyncThunk<{ task: Task; fromColumnId: number; toColumnId: number },{ taskId: number; toColumnId: number }>('board/moveTask', async ({ taskId, toColumnId }: { taskId: number; toColumnId: number }) => {
   const res = await api(`/tasks/${taskId}/move`, {
     method: 'PATCH',
     body: JSON.stringify({ toColumnId }),
   })
   if (!res.ok) throw new Error('Error moviendo tarea')
+  return res.json()
+})
+
+export const updateTaskThunk = createAsyncThunk<Task,{ taskId: number; title?: string; description?: string }>('board/updateTask', async ({ taskId, title, description }) => {
+  const res = await api(`/tasks/${taskId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title, description }),
+  })
+  if (!res.ok) throw new Error('Error actualizando tarea')
   return res.json()
 })
 
@@ -80,7 +82,8 @@ const boardSlice = createSlice({
       })
       .addCase(addTaskThunk.fulfilled, (state: BoardState, action: { payload: Task }) => {
         const task = action.payload
-        const col = state.columns.find((c) => c.id === (task as any).column?.id || (task as any).columnId)
+        const colId = (task as any).columnId ?? (task as any).column?.id
+        const col = state.columns.find((c) => String(c.id) === String(colId))
         if (col) col.tasks.push(task)
       })
       .addCase(seedBoard.pending, (state: BoardState) => {
@@ -98,7 +101,7 @@ const boardSlice = createSlice({
         moveTaskThunk.fulfilled,
         (
           state: BoardState,
-          action: { payload: { task: Task; fromColumnId: string; toColumnId: string } }
+          action: { payload: { task: Task; fromColumnId: number; toColumnId: number } }
         ) => {
           const { task, fromColumnId, toColumnId } = action.payload
           const from = state.columns.find((c) => c.id === fromColumnId)
@@ -107,6 +110,17 @@ const boardSlice = createSlice({
           if (to) to.tasks.push(task)
         }
       )
+      .addCase(updateTaskThunk.fulfilled, (state: BoardState, action: { payload: Task }) => {
+        const updated = action.payload
+        // actualizar dentro de su columna actual
+        for (const col of state.columns) {
+          const idx = col.tasks.findIndex(t => t.id === updated.id)
+          if (idx !== -1) {
+            col.tasks[idx] = { ...col.tasks[idx], ...updated }
+            break
+          }
+        }
+      })
   },
 })
 

@@ -2,16 +2,17 @@ import { Column as ColumnType } from '../interfaces/column'
 import Column from './Column'
 import { DndContext, DragEndEvent } from '@dnd-kit/core'
 
-export default function KanbanBoard({ columns, onAddTask, onMoveTask }: {
+export default function KanbanBoard({ columns, onAddTask, onMoveTask, onUpdateTask }: {
   columns: ColumnType[]
-  onAddTask: (columnId: string, title: string, description?: string) => void
-  onMoveTask: (taskId: string, toColumnId: string, position?: number) => void
+  onAddTask: (columnId: number, title: string, description?: string) => void
+  onMoveTask: (taskId: number, toColumnId: number, position?: number) => void
+  onUpdateTask?: (taskId: number, data: { title?: string; description?: string }) => void
 }) {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event
     if (!over) return
-    const taskId = String(active.id)
-    const toColumnId = String(over.id)
+    const taskId = Number(active.id)
+    const toColumnId = Number(over.id)
     onMoveTask(taskId, toColumnId)
   }
 
@@ -25,6 +26,7 @@ export default function KanbanBoard({ columns, onAddTask, onMoveTask }: {
             allColumns={columns}
             onAddTask={onAddTask}
             onMoveTask={onMoveTask}
+            onUpdateTask={onUpdateTask}
           />
         ))}
       </div>
